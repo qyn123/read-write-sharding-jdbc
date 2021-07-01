@@ -1,0 +1,78 @@
+#### spring  ####
+spring:
+  # 配置说明地址 https://shardingsphere.apache.org/document/legacy/4.x/document/cn/manual/sharding-jdbc/configuration/config-spring-boot/#%E6%95%B0%E6%8D%AE%E5%88%86%E7%89%87
+  shardingsphere:
+    # 数据库
+    datasource:
+      # 数据库的别名
+      names: ds0,ds1
+      # 数据库0
+      ds0:
+        ###  数据源类别
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/ds0?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT%2B8
+        username: root
+        password: root
+      # 数据库1
+      ds1:
+        ###  数据源类别
+        type: com.alibaba.druid.pool.DruidDataSource
+        driverClassName: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://127.0.0.1:3306/ds1?useUnicode=true&characterEncoding=utf8&zeroDateTimeBehavior=convertToNull&serverTimezone=GMT%2B8
+        username: root
+        password: root
+
+    # *** 数据库分库分表配置 start
+    sharding:
+      # 水平拆分的数据库（表） 配置分库 + 分表策略 行表达式分片策略
+      # 1.默认分库策略 ds0,ds1:通过字段id进行分库策略，对2取余为0入库0，对2取余为1入库1
+      default-database-strategy:
+        inline:
+          sharding-column: id
+          algorithm-expression: ds$->{id % 2}
+      # 2.默认分表策略 user_0,user_1:通过字段age进行分库策略，对2取余为0入库0，对2取余为1入库1
+      default-table-strategy:
+        inline:
+          sharding-column: age  # 分表策略 其中user为逻辑表 分表主要取决于age行
+          algorithm-expression: user_$->{age % 2}
+      # 数据节点
+      tables:
+        user:
+          actual-data-nodes: ds$->{0..1}.user_$->{0..1}
+      # *** 数据库分库分表配置 end
+
+    #    sharding:
+    #      # 默认数据库
+    #      default-data-source-name: ds0
+    #      default-database-strategy:
+    #        inline:
+    #          sharding-column: user_id
+    #          algorithm-expression: ds$->{user_id % 2}
+    #      tables:
+    #        user:
+    #            #指定user表里面主键id生成策略 雪花算法
+    #          key-generator:
+    #            column: user_id
+    #            type: SNOWFLAKE
+    #          actual-data-nodes: ds$->{0..1}.user_split_$->{0..1}
+    #          table-strategy:
+    #            inline:
+    #              sharding-column: age
+    #              algorithm-expression: user_split_$->{age % 2}
+    #      binding-tables: user
+
+    props:
+      # 打印SQL
+      sql.show: true
+      check:
+        table:
+          metadata: true
+          # 是否在启动时检查分表元数据一致性
+          enabled: true
+      query:
+        with:
+          cipher:
+            column: true
+  main:
+    allow-bean-definition-overriding: true
