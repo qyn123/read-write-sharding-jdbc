@@ -1,0 +1,96 @@
+server:
+  port: 9093
+spring:
+  main:
+    allow-bean-definition-overriding: true
+  shardingsphere:
+    datasource:
+      #配置数据源
+      names: m0,m1,m2,s0,s1,s2
+      m0:
+        driver‐class‐name: com.mysql.jdbc.Driver
+        password: root
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://localhost:3307/store_db?useUnicode=true
+        username: root
+      m1:
+        driver‐class‐name: com.mysql.jdbc.Driver
+        password: root
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://localhost:3307/product_db_1?useUnicode=true
+        username: root
+      m2:
+        driver‐class‐name: com.mysql.jdbc.Driver
+        password: root
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://localhost:3307/product_db_2?useUnicode=true
+        username: root
+      s0:
+        driver‐class‐name: com.mysql.jdbc.Driver
+        password: root
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://localhost:3308/store_db?useUnicode=true
+        username: root
+      s1:
+        driver‐class‐name: com.mysql.jdbc.Driver
+        password: root
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://localhost:3308/product_db_1?useUnicode=true
+        username: root
+      s2:
+        driver‐class‐name: com.mysql.jdbc.Driver
+        password: root
+        type: com.alibaba.druid.pool.DruidDataSource
+        url: jdbc:mysql://localhost:3308/product_db_2?useUnicode=true
+        username: root
+    #显示sharding的sql
+    props:
+      sql:
+        show: true
+    #设置product_info,product_descript为绑定表
+    sharding:
+      binding‐tables[0]: product_info,product_descript
+      #配置公共表
+      broadcast‐tables: region
+      #配置分库策略：根据store_info_id对2取余，为0，入库1;为1，入库2
+      default‐database‐strategy:
+        inline:
+          algorithm‐expression: ds$->{store_info_id % 2 + 1}
+          sharding‐column: store_info_id
+      #设置主库、从库
+      master‐slave‐rules:
+        ds0:
+          master-data-source-name: m0
+          slave-data-source-names: s0
+        ds1:
+          master-data-source-name: m1
+          slave-data-source-names: s1
+        ds2:
+          master-data-source-name: m2
+          slave-data-source-names: s2
+      #分表策略
+      tables:
+        product_descript:
+          actual-data-nodes: ds$->{1..2}.product_descript_$->{1..2}
+          table-strategy:
+            inline:
+              algorithm-expression: product_descript_$->{product_info_id % 2 + 1}
+              sharding-column: product_info_id
+          keyGenerator:
+            type: SNOWFLAKE   #雪花算法，解决主键避重问题
+            column: id
+        product_info:
+          actual-data-nodes: ds$->{1..2}.product_info_$->{1..2}
+          table-strategy:
+            inline:
+              algorithm-expression: product_info_$->{product_info_id % 2 + 1}
+              sharding-column: product_info_id
+          keyGenerator:
+            type: SNOWFLAKE   #雪花算法，解决主键避重问题
+            column: product_info_id
+        store_info:
+          actual-data-nodes: ds$->{0}.store_info
+          table-strategy:
+            inline:
+              algorithm-expression: store_info
+              sharding-column: id

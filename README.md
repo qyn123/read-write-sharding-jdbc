@@ -264,3 +264,13 @@ CREATE TABLE `user_1`  (
   `age` int(0) NULL DEFAULT NULL,
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci ROW_FORMAT = Dynamic;
+垂直分表
+垂直分库
+水平分库
+水平分表
+分库分表带来的问题：
+事务一致性的问题：不同的库完成同一事物
+跨节点关联问题：
+跨节点分页、排序函数：
+主键避重
+公共表

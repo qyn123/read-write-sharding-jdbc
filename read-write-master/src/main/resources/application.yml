@@ -33,7 +33,8 @@ spring:
       sql:
         show: true
 
-
   #load-balance-algorithm-type 用于配置从库负载均衡算法类型，可选值：ROUND_ROBIN(轮询)，RANDOM（随机）
 
   #props.sql.show=true 在执行SQL时，会打印SQL，并显示执行库的名称
+server:
+  port: 9089

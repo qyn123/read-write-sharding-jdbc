@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 /**
+ * 测试读写分离
  * @author yn.qiao
  * @version 1.0
  * @create 2021-06-28 23:00
