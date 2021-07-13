@@ -18,6 +18,13 @@ import java.util.List;
  **/
 public interface ProductInfoMapper extends BaseMapper<ProductInfo> {
 
+
+    /**
+     * 测试插入
+     * @author yn.qiao
+     * @param productInfo
+     * @return void
+     **/
     @Insert("INSERT INTO product_info(store_info_id, product_name, spec, region_code, price, image_url) " +
             "VALUES (#{storeInfoId},#{productName},#{spec}, #{regionCode}, #{price}, #{imageUrl})")
     @Options(keyProperty="productInfoId", keyColumn="product_info_id")
@@ -28,7 +35,7 @@ public interface ProductInfoMapper extends BaseMapper<ProductInfo> {
 
     /**
      * 不支持跨节点left....join关联查询
-     * 测试分页，关联查询，降序
+     * 测试分页，关联查询，排序
      * @author yn.qiao
      **/
 /*  @Select("select p.product_info_id,p.product_name,p.spec,p.price,p.image_url, r.region_name,s.store_name from \n" +
